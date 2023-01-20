@@ -1,0 +1,23 @@
+FROM python:3.11-slim-bullseye as url-counter-base
+
+# Extra packages
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+	libssl1.1 \
+    openssl \
+    mime-support \
+    make \
+	gcc \
+	python3-dev \
+	mime-support \
+	libffi-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
+FROM url-counter-base as url-counter-build
+
+WORKDIR /app
+
+RUN pip install virtualenv
+RUN python -m venv .venv
+RUN . .venv/bin/activate
+RUN pip install -U pip

@@ -1,0 +1,9 @@
+FROM url-counter-build:latest AS url-counter-test
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements/dev.txt
+
+CMD ["pytest", "tests/", "--cov-config=setup.cfg"]

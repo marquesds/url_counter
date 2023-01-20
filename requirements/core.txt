@@ -1,0 +1,4 @@
+Flask==2.2.2
+hiredis==2.1.1
+redis==4.4.2
+uWSGI==2.0.21

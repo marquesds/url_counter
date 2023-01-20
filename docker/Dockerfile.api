@@ -1,0 +1,11 @@
+FROM url-counter-build:latest AS url-counter-api
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements/core.txt
+
+EXPOSE 5000
+
+CMD ["uwsgi", "--ini", "uwsgi.ini"]

@@ -1,0 +1,60 @@
+version: "3.8"
+
+volumes:
+  redis-data:
+
+networks:
+  default:
+    name: url-counter
+
+x-env-vars: &env-vars
+  REDIS_HOST: url-counter-redis
+  REDIS_PORT: 6379
+  REDIS_URL: redis://url-counter-redis:6379/0
+
+services:
+  url-counter-redis:
+    image: redis:6-alpine
+    volumes:
+      - redis-data:/data
+    ports:
+      - "59120:6379"
+    networks:
+      - default
+
+  url-counter-build:
+    image: url-counter-build
+    environment:
+      <<: *env-vars
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.base
+
+  url-counter-test:
+    image: url-counter-test
+    environment:
+      <<: *env-vars
+      ENVIRONMENT: Testing
+    command: [ "pytest", "tests/", "--cov-config=setup.cfg" ]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    networks:
+      - default
+    depends_on:
+      - url-counter-redis
+
+  url-counter-api:
+    image: url-counter-api
+    environment:
+      <<: *env-vars
+    ports:
+      - "5001:5001"
+    command: ["uwsgi", "--ini", "uwsgi.ini"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    networks:
+      - default
+    depends_on:
+      - url-counter-redis
